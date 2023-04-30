@@ -4,7 +4,7 @@
         "patch_size": 32,
         "attn_layers":{
             "dim": 512,
-            "depth": 8,
+            "depth": 6,
             "heads": 8
         }
     },
@@ -13,7 +13,7 @@
         "max_seq_len": 64,
         "attn_layers":{
             "dim": 512,
-            "depth": 8,
+            "depth": 6,
             "heads": 8,
             "cross_attend": true
         }
