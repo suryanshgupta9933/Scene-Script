@@ -10,9 +10,9 @@ from transformers import GPT2TokenizerFast
 from PIL import Image
 import os
 import time
+import json
 import random
 import numpy as np
-from x_transformers import ViTransformerWrapper, TransformerWrapper, Encoder, Decoder
 from model import SceneScript
 
 # Check if GPU is available
@@ -23,22 +23,25 @@ print('Device set to ' + str(device) + ': \u2713')
 images_dir = 'data/Images'
 caption_file = 'data/captions.txt'
 
-# Setting the Hyperparameters
+# Loading model config
+model_param = "97M"
+with open(f'config/{model_param}.json'.format(model_param)) as f:
+    params = json.load(f)
+
+# Encoder Parameters
+encoder_params = params.pop('encoder')
+
+# Decoder Parameters
+decoder_params = params.pop('decoder')
+print('Model Config: ' + '\u2713')
+
+# Hyperparameters
+train_params = params.pop('train')
 print('Hyperparameters: ' + '\u2713')
-IMAGE_SIZE = 256
-PATCH_SIZE = 32
-DIMENSION = 512
-LAYERS = 6
-HEADS = 8
-MAX_SEQ_LEN = 64
-VOCAB_SIZE = 50304
-BATCH_SIZE = 4
-EMBEDDING_SIZE = 512
-LEARNING_RATE = 1e-4
 
 # Define the data preprocessing pipeline
 transform = transforms.Compose([
-    transforms.Resize((IMAGE_SIZE, IMAGE_SIZE)),
+    transforms.Resize((encoder_params['image_size'], encoder_params['image_size'])),
     transforms.ToTensor()
 ])
 
@@ -114,14 +117,14 @@ val_size = dataset_size - train_size
 train_set, val_set = random_split(dataset, [train_size, val_size])
 
 # Creating dataloaders
-print('Loading data into batches of size ' + str(BATCH_SIZE) + ' ...')
-train_loader = DataLoader(train_set, batch_size=BATCH_SIZE, shuffle=True)
-val_loader = DataLoader(val_set, batch_size=BATCH_SIZE, shuffle=True)
+print('Loading data into batches of size ' + str(train_params['batch_size']) + ' ...')
+train_loader = DataLoader(train_set, batch_size=train_params['batch_size'], shuffle=True)
+val_loader = DataLoader(val_set, batch_size=train_params['batch_size'], shuffle=True)
 print('Dataloaders' + ': \u2713')
 
 # Initialize the model
 print('Initializing Model...')
-model = SceneScript().to(device)
+model = SceneScript(encoder_params, decoder_params).to(device)
 print('Model: ' + '\u2713')
 print("Model Parameters:", int(sum(p.numel() for p in model.parameters())/1e6), "M")
 
@@ -131,28 +134,33 @@ criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
 
 # Define the optimizer
 print('Optimizer: ' + '\u2713')
-optimizer = optim.AdamW(model.parameters(), lr=LEARNING_RATE)
+optimizer = optim.AdamW(model.parameters(), lr=train_params['lr'])
 
 # Define the training loop
 print('Training...')
 def train(model, train_loader, criterion, optimizer, device):
     model.train()
-    total_loss = 0
-    for i, (images, captions) in enumerate(train_loader):
-        images = images.to(device)
-        captions = captions.to(device)
-        target = captions[:, 1:]
-        decoder_input = captions[:, :-1]
-        encoded = model.encoder(images, return_embeddings=True)
-        output = model.decoder(decoder_input, context=encoded)
+    for epoch in range(trian_params['epochs']):
+        total_loss = 0
+        for i, (images, captions) in enumerate(train_loader):
+            images = images.to(device)
+            captions = captions.to(device)
+            target = captions[:, 1:]
+            decoder_input = captions[:, :-1]
+            encoded = model.encoder(images, return_embeddings=True)
+            output = model.decoder(decoder_input, context=encoded)
 
-        loss = criterion(output.reshape(-1, output.size(2)), target.reshape(-1))
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        total_loss += loss.item()
-        if (i+1) % 100 == 0:
-            print(f"Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
-    
-    return total_loss / len(train_loader)
+            loss = criterion(output.reshape(-1, output.size(2)), target.reshape(-1))
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+
+            total_loss += loss.item()
+            if (i+1) % 100 == 0:
+                print(f"Epoch [{epoch+1}/{trian_params['epochs']}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
+
+        avg_loss = total_loss / len(train_loader)
+        print(f"Epoch [{epoch+1}/{trian_params['epochs']}], Avg Loss: {avg_loss:.4f}")
+
+
     
