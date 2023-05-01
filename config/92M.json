@@ -1,0 +1,26 @@
+{
+    "encoder": {
+        "image_size": 256,
+        "patch_size": 32,
+        "attn_layers":{
+            "dim": 512,
+            "depth": 6,
+            "heads": 6
+        }
+    },
+    "decoder":{
+        "num_tokens": 50304,
+        "max_seq_len": 64,
+        "attn_layers":{
+            "dim": 512,
+            "depth": 6,
+            "heads": 6,
+            "cross_attend": true
+        }
+    },
+    "train":{
+        "lr": 1e-3,
+        "batch_size": 128,
+        "epochs": 3
+    }
+}
