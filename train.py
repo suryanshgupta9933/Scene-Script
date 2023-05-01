@@ -20,7 +20,19 @@ parser.add_argument('--images_dir', type=str, help='Path to Images Directory')
 parser.add_argument('--caption_file', type=str, help='Path to Captions File')
 args = parser.parse_args()
 
-
+# Checking if paths are valid
+try:
+    if args.images_dir is None:
+        raise ValueError("Enter path to images directory")
+    if not os.path.isdir(args.images_dir):
+        raise ValueError("Invalid path to images directory")
+    if args.caption_file is None:
+        raise ValueError("Enter path to captions file")
+    if not os.path.isfile(args.caption_file):
+        raise ValueError("Invalid path to captions file")
+except ValueError as e:
+    print("Error:", str(e))
+    exit()
 
 # Defining Paths
 images_dir = args.images_dir
@@ -135,7 +147,7 @@ print("Model Parameters:", int(sum(p.numel() for p in model.parameters())/1e6), 
 
 # Define the loss function
 print('Loss Function: ' + '\u2713')
-criterion = nn.CrossEntropyLoss(ignore_index=tokenizer.pad_token_id)
+criterion = nn.CrossEntropyLoss()
 
 # Define the optimizer
 print('Optimizer: ' + '\u2713')
