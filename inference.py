@@ -16,6 +16,7 @@ from model import SceneScript
 parser = argparse.ArgumentParser()
 parser.add_argument('--image_path', type=str, help='Path to Image')
 parser.add_argument('--model_config', type=str, default='97M', help='Model Parameters Configuration')
+parser.add_argument('--model_weights', type=str, default='weights/scene-script.pt', help='Path to Weights')
 args = parser.parse_args()
 
 # Checking if path is valid
@@ -70,7 +71,7 @@ model = SceneScript(encoder_params, decoder_params).to(device)
 print('Model: ' + '\u2713')
 
 # Load the trained weights
-model.load_state_dict(torch.load('weights/epoch_20.pth', map_location=device))
+model.load_state_dict(torch.load(args.model_weights, map_location=device))
 model.eval()
 print('Loaded weights: ' + '\u2713')
 
@@ -91,10 +92,8 @@ def generate_caption(model, image_path, tokenizer):
             last_token_logits = output[0, -1, :]
             next_token_id = torch.argmax(last_token_logits).item()
             caption_tokens.append(next_token_id)
-            if next_token_id == tokenizer.eos_token_id:
-                break
-
-    # Convert tokens to string
+    
+    # Decode caption
     caption = tokenizer.decode(caption_tokens, skip_special_tokens=True)
     return caption
 
