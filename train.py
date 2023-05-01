@@ -208,5 +208,5 @@ print('Validation Complete: ' + '\u2713')
 
 # Save the model
 os.makedirs('weights', exist_ok=True)
-torch.save(model.state_dict(), 'weights/scene-script.pt')
-print('Model Saved to weights/scene-script.pt: ' + '\u2713')
+torch.save(model.state_dict(), 'weights/scene-script.pth')
+print('Model Saved to weights/scene-script.pth: ' + '\u2713')
