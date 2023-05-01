@@ -1,5 +1,4 @@
-# Scene-Script
-An image to text model/pipeline using VIT and Transformers and deployment using Nvidia's PyTrition and Streamlit app.
+# 👁‍🗨 Scene-Script
 
 ## Introduction
 The goal of this project is to create a pipeline that can take an image as input and output the text in the image. The pipeline consists of a VIT model for feature extraction and a Transformer model for text generation. The pipeline is deployed using Nvidia's PyTrition and Streamlit app.
