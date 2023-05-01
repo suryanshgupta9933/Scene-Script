@@ -19,8 +19,8 @@
         }
     },
     "train":{
-        "lr": 1e-4,
+        "lr": 1e-3,
         "batch_size": 128,
-        "epochs": 20
+        "epochs": 3
     }
 }
