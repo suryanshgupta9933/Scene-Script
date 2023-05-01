@@ -1,4 +1,4 @@
-print('Starting...')
+print('Starting Scene Script...')
 
 # Importing the libraries
 import torch
@@ -9,28 +9,35 @@ from torch.utils.data import DataLoader, Dataset, random_split
 from transformers import GPT2TokenizerFast
 from PIL import Image
 import os
-import time
 import json
-import random
-import numpy as np
+import argparse
 from model import SceneScript
+
+# Take arguments from command line
+parser = argparse.ArgumentParser()
+parser.add_argument('--model_config', type=str, default='97M', help='Model Parameters Configuration')
+parser.add_argument('--images_dir', type=str, help='Path to Images Directory')
+parser.add_argument('--caption_file', type=str, help='Path to Captions File')
+args = parser.parse_args()
+
+
+
+# Defining Paths
+images_dir = args.images_dir
+caption_file = args.caption_file
+print('Paths: ' + '\u2713')
 
 # Check if GPU is available
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 print('Device set to ' + str(device) + ': \u2713')
 
-# Defining Paths
-images_dir = 'data/Images'
-caption_file = 'data/captions.txt'
-
 # Loading model config
-model_param = "97M"
+model_param = args.model_config
 with open(f'config/{model_param}.json'.format(model_param)) as f:
     params = json.load(f)
 
 # Encoder Parameters
 encoder_params = params.pop('encoder')
-
 # Decoder Parameters
 decoder_params = params.pop('decoder')
 print('Model Config: ' + '\u2713')
@@ -45,9 +52,9 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-# Defining Tokenizer
+# Load the tokenizer
 tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
-tokenizer.add_special_tokens({'pad_token': '<|pad|>'})
+tokenizer.pad_token_id = tokenizer.eos_token_id
 tokenizer.add_special_tokens({'bos_token': '<|startoftext|>'})
 print('Tokenizer: ' + '\u2713')
 
@@ -91,8 +98,7 @@ class Flickr8kDataset(Dataset):
         image_file, caption = self.captions[idx]
         # Load image
         image = Image.open(os.path.join(self.img_dir, image_file)).convert('RGB')
-        if self.transform:
-            image = self.transform(image)
+        image = self.transform(image)
         # Tokenize caption and convert to tensor
         caption_tokens = self.tokenizer.encode(caption, add_special_tokens=False, truncation=True, max_length=62, padding='max_length')
         caption_tokens = [self.tokenizer.bos_token_id] + caption_tokens + [self.tokenizer.eos_token_id]
@@ -100,27 +106,26 @@ class Flickr8kDataset(Dataset):
         return image, caption_tensor
 
 # Loading dataset
-print('Dataset: ' + '\u2713')
 dataset = Flickr8kDataset(images_dir, caption_file, tokenizer, transform=transform)
+print('Dataset: ' + '\u2713')
 
 # Checking Shapes
 for i in dataset:
     print('Image Shape: ' + str(i[0].shape))
     print('Caption Shape: ' + str(i[1].shape))
     break
-
+    
 # Splitting dataset into train and validation sets
-print('Train and Validation Split: ' + '\u2713')
 dataset_size = len(dataset)
 train_size = int(dataset_size*0.9)
 val_size = dataset_size - train_size
 train_set, val_set = random_split(dataset, [train_size, val_size])
+print('Train and Validation Split: ' + '\u2713')
 
 # Creating dataloaders
-print('Loading data into batches of size ' + str(train_params['batch_size']) + ' ...')
 train_loader = DataLoader(train_set, batch_size=train_params['batch_size'], shuffle=True)
 val_loader = DataLoader(val_set, batch_size=train_params['batch_size'], shuffle=True)
-print('Dataloaders' + ': \u2713')
+print('Dataloading into batches of ' + str(train_params['batch_size']) + ': \u2713')
 
 # Initialize the model
 print('Initializing Model...')
@@ -140,7 +145,7 @@ optimizer = optim.AdamW(model.parameters(), lr=train_params['lr'])
 print('Training...')
 def train(model, train_loader, criterion, optimizer, device):
     model.train()
-    for epoch in range(trian_params['epochs']):
+    for epoch in range(train_params['epochs']):
         total_loss = 0
         for i, (images, captions) in enumerate(train_loader):
             images = images.to(device)
@@ -157,10 +162,8 @@ def train(model, train_loader, criterion, optimizer, device):
 
             total_loss += loss.item()
             if (i+1) % 100 == 0:
-                print(f"Epoch [{epoch+1}/{trian_params['epochs']}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
+                print(f"Epoch [{epoch+1}/{train_params['epochs']}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
 
         avg_loss = total_loss / len(train_loader)
-        print(f"Epoch [{epoch+1}/{trian_params['epochs']}], Avg Loss: {avg_loss:.4f}")
+        print(f"Epoch [{epoch+1}/{train_params['epochs']}], Avg Loss: {avg_loss:.4f}")
 
-
-    
