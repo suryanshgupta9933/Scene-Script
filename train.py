@@ -173,9 +173,36 @@ def train(model, train_loader, criterion, optimizer, device):
             optimizer.step()
 
             total_loss += loss.item()
-            if (i+1) % 100 == 0:
+            if (i+1) % 500 == 0:
                 print(f"Epoch [{epoch+1}/{train_params['epochs']}], Step [{i+1}/{len(train_loader)}], Loss: {loss.item():.4f}")
 
         avg_loss = total_loss / len(train_loader)
         print(f"Epoch [{epoch+1}/{train_params['epochs']}], Avg Loss: {avg_loss:.4f}")
+
+# Define the validation loop
+def validate(model, val_loader, criterion, device):
+    model.eval()
+    total_loss = 0
+    with torch.no_grad():
+        for i, (images, captions) in enumerate(val_loader):
+            images = images.to(device)
+            captions = captions.to(device)
+            target = captions[:, 1:]
+            decoder_input = captions[:, :-1]
+            encoded = model.encoder(images, return_embeddings=True)
+            output = model.decoder(decoder_input, context=encoded)
+
+            loss = criterion(output.reshape(-1, output.size(2)), target.reshape(-1))
+            total_loss += loss.item()
+
+    avg_loss = total_loss / len(val_loader)
+    print(f"Validation Loss: {avg_loss:.4f}")
+
+# Train the model
+train(model, train_loader, criterion, optimizer, device)
+print('Training Complete: ' + '\u2713')
+
+# Validate the model
+validate(model, val_loader, criterion, device)
+print('Validation Complete: ' + '\u2713')
 
