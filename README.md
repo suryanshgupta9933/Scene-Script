@@ -64,6 +64,6 @@ python inference.py --model_config <model-config> --model_weights <path/to/model
 
 - `model_weights` is the path to the model weights file.
 
-> **Note:** Default is set to the 'weights/scene-script.pt' file.
+> **Note:** Default is set to the 'weights/scene-script.pth' file.
 
 - `image_path` is the path to the image.
