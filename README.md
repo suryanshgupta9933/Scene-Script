@@ -1,2 +1,53 @@
 # Scene-Script
-An image to text model/pipeline using VIT and Transformers and deployment using Nvidia's PyTrition.
+An image to text model/pipeline using VIT and Transformers and deployment using Nvidia's PyTrition and Streamlit app.
+
+## Introduction
+The goal of this project is to create a pipeline that can take an image as input and output the text in the image. The pipeline consists of a VIT model for feature extraction and a Transformer model for text generation. The pipeline is deployed using Nvidia's PyTrition.
+
+## Dataset
+The dataset used for the model is Flickr30k. The dataset consists of 31,783 images collected from Flickr. Each image is paired with 5 captions. The dataset can be downloaded from [here](https://www.kaggle.com/hsankesara/flickr-image-dataset).
+
+## Installation
+Clone the repository using the following command:
+```
+git clone https://github.com/smackiaa/Scene-Script.git
+```
+Now, install the required packages using the following command:
+```
+pip install -r requirements.txt
+```
+
+## Usage
+### Preprocessing
+Preprocess the captions text file to remove unnecessary data using the following command:
+```
+python preprocess.py --caption_file <path/to/captions/file>
+```
+- `caption_file` is the path to the captions file.
+
+> **Note:** The preprocessed captions file is saved in the same directory as the original captions file. It overwrites the original captions file. So, either use a copy of the original captions file or rename the original captions file before running the above command or use the one given in the repository in the `data` directory.
+
+### Training
+To train the model, run the following command:
+```
+python train.py --model_config <model-config> --images_dir <path/to/images/directory> --caption_file <path/to/captions/file>
+```
+- `model_config` is the path to the model configuration file. The model configuration file is a json file that contains the model parameters and the training parameters. 
+
+> **Note:** Default is set to 97 million parameters.
+
+- `images_dir` is the path to the directory containing the images.
+- `caption_file` is the path to the captions file.
+
+### Inference
+To run inference on a single image, run the following command:
+```
+python inference.py --model_config <model-config> --model_weights <path/to/model/weights> --image <path/to/image>
+```
+- `model_config` is the path to the model configuration file. The model configuration file is a json file that contains the model parameters.
+
+> **Note:** Default is set to 97 million parameters.
+
+- `model_weights` is the path to the model weights file.
+
+> **Note:** Default is set to the 'weights/scene-script.
