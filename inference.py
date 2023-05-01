@@ -54,11 +54,6 @@ transform = transforms.Compose([
     transforms.ToTensor()
 ])
 
-# Load the image
-image = Image.open(image_path).convert('RGB')
-image = transform(image).unsqueeze(0).to(device)
-print('Image: ' + '\u2713')
-
 # Load the tokenizer
 tokenizer = GPT2TokenizerFast.from_pretrained('gpt2')
 tokenizer.pad_token_id = tokenizer.eos_token_id
