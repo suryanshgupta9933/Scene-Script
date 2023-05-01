@@ -16,7 +16,7 @@ from model import SceneScript
 parser = argparse.ArgumentParser()
 parser.add_argument('--image_path', type=str, help='Path to Image')
 parser.add_argument('--model_config', type=str, default='97M', help='Model Parameters Configuration')
-parser.add_argument('--model_weights', type=str, default='weights/scene-script.pt', help='Path to Weights')
+parser.add_argument('--model_weights', type=str, default='weights/scene-script.pth', help='Path to Weights')
 args = parser.parse_args()
 
 # Checking if path is valid
