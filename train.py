@@ -206,3 +206,7 @@ print('Training Complete: ' + '\u2713')
 validate(model, val_loader, criterion, device)
 print('Validation Complete: ' + '\u2713')
 
+# Save the model
+os.makedirs('weights', exist_ok=True)
+torch.save(model.state_dict(), 'weights/scene-script.pt')
+print('Model Saved to weights/scene-script.pt: ' + '\u2713')
