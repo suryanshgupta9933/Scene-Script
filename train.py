@@ -128,8 +128,9 @@ for i in dataset:
     break
     
 # Splitting dataset into train and validation sets
+split = 0.9
 dataset_size = len(dataset)
-train_size = int(dataset_size*0.9)
+train_size = int(dataset_size*split)
 val_size = dataset_size - train_size
 train_set, val_set = random_split(dataset, [train_size, val_size])
 print('Train and Validation Split: ' + '\u2713')
