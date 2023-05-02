@@ -1,7 +1,7 @@
 # 👁‍🗨 Scene-Script
 
 ## Introduction
-The goal of this project is to create a pipeline that can take an image as input and output the text in the image. The pipeline consists of a VIT model for feature extraction and a Transformer model for text generation. The pipeline is deployed using Nvidia's PyTrition and Streamlit app.
+The goal of this project is to create an easy to use and deploy pipeline for training, validation and inference that can take an image as input and output text description. The pipeline consists of a VIT model for feature extraction and a Transformer model for text generation. The pipeline is deployed using Nvidia's PyTrition and Streamlit app.
 
 ## Dataset
 The dataset used for the model is Flickr30k. The dataset consists of 31,783 images collected from Flickr. Each image is paired with 5 captions. The dataset can be downloaded from [here](https://www.kaggle.com/hsankesara/flickr-image-dataset).
@@ -34,9 +34,9 @@ python preprocess.py --caption_file <path/to/captions/file>
 
 ### Hyperparameters
 - The model configuration json file also contains the training parameters.
-- The `learning_rate` is set to 1e-4.
+- The `learning_rate` is set to 1e-6.
 - The `batch_size` is set to 128.
-- The `num_epochs` is set to 3.
+- The `num_epochs` is set to 10.
 
 > **Note:** Change the batch size and the number of epochs according to the GPU memory and the time available.
 
@@ -52,6 +52,14 @@ python train.py --model_config <model-config> --images_dir <path/to/images/direc
 - `images_dir` is the path to the directory containing the images.
 - `caption_file` is the path to the captions file.
 
+### Validation
+- The validation loop is run after the training and the validation loss is calculated.
+- The validation data is set to 0.1 of the total dataset. To change the validation data size, change the `split` parameter in the `train.py` file.
+
+### Saving the Model
+- The model is saved after the training and the validation loop is completed.
+- The model is saved in the `weights` directory.
+
 ### Inference
 To run inference on a single image, run the following command:
 ```
@@ -63,6 +71,14 @@ python inference.py --model_config <model-config> --model_weights <path/to/model
 
 - `model_weights` is the path to the model weights file.
 
-> **Note:** Default is set to the 'weights/scene-script.pth' file.
+> **Note:** Default is set to the 'weights/scene_script.pth' file.
 
 - `image_path` is the path to the image.
+
+## Nvidia PyTrition
+- Nvidia PyTrition is a light-weight python wrapper for the Triton Inference Server.
+- The library allows serving Machine Learning models directly from Python through NVIDIA's Triton Inference Server.
+- The library can be installed using the following command:
+```
+pip install -U nvidia-pytrition
+```
