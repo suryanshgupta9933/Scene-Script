@@ -95,16 +95,15 @@ if st.button("Generate Caption"):
             st.warning("Please upload an image first.")
         else:
             caption = generate_caption(model, uploaded_file, tokenizer)
-            st.write('\nCaption: ' + caption)
+            with st.spinner('Generating caption...'):
+                st.success('\nCaption: ' + caption)
     else:
         if image_url == "":
             st.warning("Please enter an image URL first.")
         else:
             try:
-                response = requests.get(image_url)
-                image = Image.open(BytesIO(response.content))
-                image_tensor = transform(image).unsqueeze(0)
-                caption = generate_caption(model, image_tensor, tokenizer)
-                st.success("Generated Caption: " + caption)
+                caption = generate_caption(model, BytesIO(response.content), tokenizer)
+                with st.spinner('Generating caption...'):
+                    st.success("Generated Caption: " + caption)
             except:
                 st.warning("Invalid URL entered. Please try again.")
