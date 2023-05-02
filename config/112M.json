@@ -11,15 +11,19 @@
     "decoder":{
         "num_tokens": 50304,
         "max_seq_len": 64,
+	    "emb_dropout": 0.1,
         "attn_layers":{
             "dim": 512,
             "depth": 8,
             "heads": 8,
-            "cross_attend": true
+            "cross_attend": true,
+	        "layer_dropout": 0.1,
+	        "attn_dropout": 0.1,
+	        "ff_dropout": 0.1
         }
     },
     "train":{
-        "lr": 1e-4,
+        "lr": 1e-6,
         "batch_size": 128,
         "epochs": 3
     }
